@@ -111,35 +111,37 @@ def scrape_ebay(item):
             price = 'Not Available'
     row['Price'] = price
 
-    try:
-    # Locate the quantity element by its class and ID
-     qty_element = soup.find('div', attrs={'class': 'x-quantity__availability', 'id': 'qtyAvailability'})
-     if qty_element:
-        # Extract the text from the span inside the div
-        qty_text = qty_element.find('span', class_='ux-textspans ux-textspans--SECONDARY').text.strip()
-     
+   try:
+    # Locate the quantity element by class and ID
+    qty_element = soup.find('div', attrs={'class': 'x-quantity__availability', 'id': 'qtyAvailability'})
+    
+    if qty_element:
+        # Find the span that contains the word 'available'
+        available_span = qty_element.find('span', string=lambda text: text and 'available' in text.lower())
+        
+        if available_span:
+            qty_text = available_span.text.strip()
 
-        # Determine the quantity based on the text content
-        if 'Last One' in qty_text:
-            row['Quantity'] = '1'
-        elif 'Out of Stock' in qty_text:
-            row['Quantity'] = '0'
-        elif 'More than' in qty_text:
-            # Extract the number after "More than"
-            row['Quantity'] = qty_text.split('More than')[-1].split()[0].strip()
-        elif 'available' in qty_text:
-            # Extract the number directly from "X available"
-            row['Quantity'] = qty_text.split('available')[0].strip()
+            # Determine quantity from known formats
+            if 'Last One' in qty_text:
+                row['Quantity'] = '1'
+            elif 'Out of Stock' in qty_text:
+                row['Quantity'] = '0'
+            elif 'More than' in qty_text:
+                row['Quantity'] = qty_text.split('More than')[-1].split()[0].strip()
+            elif 'available' in qty_text:
+                row['Quantity'] = qty_text.split('available')[0].strip()
+            else:
+                # Default: extract any digits
+                row['Quantity'] = ''.join(filter(str.isdigit, qty_text))
         else:
-            # Default case: try extracting numeric value from unexpected formats
-            row['Quantity'] = ''.join(filter(str.isdigit, qty_text))  # Extract digits
+            row['Quantity'] = '1'  # fallback if no "available" span found
+    else:
+        row['Quantity'] = '1'  # fallback if div not found
 
-        #st.write(f"Parsed quantity: {row['Quantity']}")  # Output the parsed quantity for debugging
-     else:
-        row['Quantity'] = '1'  # Default if no element is found
-    except Exception as e:
-      row['Quantity'] = 'Not Available'
-      st.write(f"Error occurred quantity: {e}")  # Log the error for debugging
+except Exception as e:
+    row['Quantity'] = 'Not Available'
+    st.write(f"Error occurred quantity: {e}")
 
 
     
