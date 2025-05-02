@@ -111,11 +111,11 @@ def scrape_ebay(item):
             price = 'Not Available'
     row['Price'] = price
 
-   try:
-    # Locate the quantity element by class and ID
-    qty_element = soup.find('div', attrs={'class': 'x-quantity__availability', 'id': 'qtyAvailability'})
+    try:
+     # Locate the quantity element by class and ID
+     qty_element = soup.find('div', attrs={'class': 'x-quantity__availability', 'id': 'qtyAvailability'})
     
-    if qty_element:
+     if qty_element:
         # Find the span that contains the word 'available'
         available_span = qty_element.find('span', string=lambda text: text and 'available' in text.lower())
         
@@ -136,12 +136,12 @@ def scrape_ebay(item):
                 row['Quantity'] = ''.join(filter(str.isdigit, qty_text))
         else:
             row['Quantity'] = '1'  # fallback if no "available" span found
-    else:
+     else:
         row['Quantity'] = '1'  # fallback if div not found
 
-except Exception as e:
-    row['Quantity'] = 'Not Available'
-    st.write(f"Error occurred quantity: {e}")
+    except Exception as e:
+      row['Quantity'] = 'Not Available'
+      st.write(f"Error occurred quantity: {e}")
 
 
     
