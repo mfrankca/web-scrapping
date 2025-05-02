@@ -139,7 +139,7 @@ def scrape_ebay(item):
         row['Quantity'] = '1'  # Default if no element is found
     except Exception as e:
       row['Quantity'] = 'Not Available'
-      st.write(f"Error occurred: {e}")  # Log the error for debugging
+      st.write(f"Error occurred quantity: {e}")  # Log the error for debugging
 
 
     
